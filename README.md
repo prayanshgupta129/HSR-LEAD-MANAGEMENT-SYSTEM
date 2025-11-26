@@ -71,3 +71,17 @@ This system includes screens for **Dashboard**, **Lead Listing**, **Lead Details
 
 ## 📁 Project Structure
 
+/css
+style.css
+
+/js
+app.js
+leads-data.js
+kanban.js
+leads-management.js
+dashboard.js
+dashboard-utils.js
+notifications.js
+reports.js
+settings.js
+
