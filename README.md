@@ -73,7 +73,6 @@ This system includes screens for **Dashboard**, **Lead Listing**, **Lead Details
 
 /css
 style.css
-
 /js
 app.js
 leads-data.js
