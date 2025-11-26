@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HSR Motors - Lead Management</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <span class="material-icons">directions_car</span>
+                <h1>HSR Lead Manager</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li class="nav-item active" data-screen="dashboard">
+                        <span class="material-icons">dashboard</span>
+                        <span>Dashboard</span>
+                    </li>
+                    <li class="nav-item" data-screen="leads">
+                        <span class="material-icons">people</span>
+                        <span>Leads</span>
+                        <span class="badge" id="leads-count">0</span>
+                    </li>
+                    <li class="nav-item" data-screen="leads-management">
+                        <span class="material-icons">view_kanban</span>
+                        <span>Leads Management</span>
+                    </li>
+                    <li class="nav-item" data-screen="reports">
+                        <span class="material-icons">analytics</span>
+                        <span>Reports</span>
+                    </li>
+                    <li class="nav-item" data-screen="settings">
+                        <span class="material-icons">settings</span>
+                        <span>Settings</span>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Screen -->
+            <div id="dashboard-screen" class="screen active">
+                <div class="page-header">
+                    <h2>Dashboard</h2>
+                </div>
+                <div class="dashboard-content">
+                    <p>Dashboard content will appear here</p>
+                </div>
+            </div>
+
+            <!-- Leads Screen -->
+            <div id="leads-screen" class="screen">
+                <div class="leads-header">
+                    <h2>Leads</h2>
+                    <div class="leads-actions">
+                        <div class="search-box">
+                            <span class="material-icons">search</span>
+                            <input type="text" id="search-input" placeholder="Search leads...">
+                        </div>
+                        <button id="add-lead-btn" class="btn primary">
+                            <span class="material-icons">add</span> Add Lead
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Status Filters -->
+                <div class="status-filters">
+                    <button class="status-filter active" data-filter="all">
+                        All <span class="count">0</span>
+                    </button>
+                    <button class="status-filter" data-filter="new">
+                        New <span class="count">0</span>
+                    </button>
+                    <button class="status-filter" data-filter="contacted">
+                        Contacted <span class="count">0</span>
+                    </button>
+                    <button class="status-filter" data-filter="follow_up">
+                        Follow-up <span class="count">0</span>
+                    </button>
+                    <button class="status-filter" data-filter="converted">
+                        Converted <span class="count">0</span>
+                    </button>
+                </div>
+
+                <!-- Leads Table -->
+                <div class="table-container">
+                    <table class="leads-table">
+                        <thead>
+                            <tr>
+                                <th><input type="checkbox" id="select-all"></th>
+                                <th>Name</th>
+                                <th>Contact</th>
+                                <th>Source</th>
+                                <th>Status</th>
+                                <th>Last Contact</th>
+                                <th>Next Follow-up</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leads-body">
+                            <!-- Leads will be inserted here by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination">
+                    <div class="rows-per-page">
+                        <span>Rows per page:</span>
+                        <select id="rows-per-page">
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </div>
+                    <div class="pagination-controls">
+                        <button id="prev-page" class="pagination-btn" disabled>
+                            <span class="material-icons">chevron_left</span>
+                        </button>
+                        <div id="page-numbers" class="page-numbers">
+                            <!-- Page numbers will be inserted here -->
+                        </div>
+                        <button id="next-page" class="pagination-btn">
+                            <span class="material-icons">chevron_right</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Leads Management Screen -->
+            <div id="leads-management-screen" class="screen">
+                <div class="leads-management-header">
+                    <h2>Leads Management</h2>
+                    <div class="view-toggle">
+                        <button class="view-btn active" data-view="kanban">
+                            <span class="material-icons">view_kanban</span> Board View
+                        </button>
+                        <button class="view-btn" data-view="table">
+                            <span class="material-icons">table_rows</span> Table View
+                        </button>
+                    </div>
+                    <div class="leads-actions">
+                        <button id="kanban-settings-btn" class="btn btn-secondary">
+                            <span class="material-icons">settings</span> Settings
+                        </button>
+                        <button id="add-lead-kanban-btn" class="btn btn-primary">
+                            <span class="material-icons">add</span> Add Lead
+                        </button>
+                    </div>
+                </div>
+                <div class="view-container">
+                    <!-- Kanban View -->
+                    <div id="kanban-view" class="view-content active">
+                        <div class="kanban-board grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <!-- New Leads Column -->
+                            <div class="kanban-column bg-gray-50 rounded-lg p-4" data-status="new">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h3 class="font-semibold text-gray-700">New</h3>
+                                    <span class="kanban-count bg-gray-200 text-gray-700 text-xs font-semibold px-2.5 py-0.5 rounded-full">0</span>
+                                </div>
+                                <div class="kanban-items space-y-3" id="new-leads">
+                                    <!-- Lead cards will be inserted here by JavaScript -->
+                                </div>
+                            </div>
+
+                            <!-- Contacted Column -->
+                            <div class="kanban-column bg-blue-50 rounded-lg p-4" data-status="contacted">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h3 class="font-semibold text-blue-700">Contacted</h3>
+                                    <span class="kanban-count bg-blue-200 text-blue-700 text-xs font-semibold px-2.5 py-0.5 rounded-full">0</span>
+                                </div>
+                                <div class="kanban-items space-y-3" id="contacted-leads">
+                                    <!-- Lead cards will be inserted here by JavaScript -->
+                                </div>
+                            </div>
+
+                            <!-- Follow-up Column -->
+                            <div class="kanban-column bg-yellow-50 rounded-lg p-4" data-status="follow_up">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h3 class="font-semibold text-yellow-700">Follow-up</h3>
+                                    <span class="kanban-count bg-yellow-200 text-yellow-700 text-xs font-semibold px-2.5 py-0.5 rounded-full">0</span>
+                                </div>
+                                <div class="kanban-items space-y-3" id="followup-leads">
+                                    <!-- Lead cards will be inserted here by JavaScript -->
+                                </div>
+                            </div>
+
+                            <!-- Converted Column -->
+                            <div class="kanban-column bg-green-50 rounded-lg p-4" data-status="converted">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h3 class="font-semibold text-green-700">Converted</h3>
+                                    <span class="kanban-count bg-green-200 text-green-700 text-xs font-semibold px-2.5 py-0.5 rounded-full">0</span>
+                                </div>
+                                <div class="kanban-items space-y-3" id="converted-leads">
+                                    <!-- Lead cards will be inserted here by JavaScript -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Table View -->
+                    <div id="table-view" class="view-content">
+                        <!-- Table view will be rendered here by JavaScript -->
+                        <div class="table-view-placeholder">
+                            <div class="empty-state">
+                                <span class="material-icons">table_rows</span>
+                                <p>Table view will be displayed here</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports Screen -->
+            <div id="reports-screen" class="screen">
+                <div class="page-header">
+                    <h2>Reports</h2>
+                </div>
+                <div class="reports-content">
+                    <!-- Content will be dynamically generated by reports.js -->
+                </div>
+            </div>
+
+            <!-- Settings Screen -->
+            <div class="screen" id="settings-screen">
+                <!-- Content will be dynamically generated by settings.js -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Lead Details Modal -->
+    <div class="modal" id="lead-details-modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3>Lead Details</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="lead-details-container">
+                    <div class="lead-info-section">
+                        <div class="lead-header">
+                            <div class="lead-avatar">
+                                <span id="detail-initials" class="avatar">JD</span>
+                            </div>
+                            <div class="lead-title">
+                                <h2 id="detail-name">John Doe</h2>
+                                <span class="status-badge" id="detail-status">New</span>
+                            </div>
+                        </div>
+                        
+                        <div class="lead-contact-info">
+                            <div class="info-item">
+                                <span class="material-icons">email</span>
+                                <span id="detail-email">john.doe@example.com</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="material-icons">phone</span>
+                                <a href="#" id="detail-phone">+91 98765 43210</a>
+                            </div>
+                            <div class="info-item">
+                                <span class="material-icons">source</span>
+                                <span>Source: <span id="detail-source">Website</span></span>
+                            </div>
+                            <div class="info-item">
+                                <span class="material-icons">event</span>
+                                <span>Last Contact: <span id="detail-last-contact">Today</span></span>
+                            </div>
+                            <div class="info-item">
+                                <span class="material-icons">update</span>
+                                <span>Next Follow-up: <span id="detail-next-followup">Tomorrow</span></span>
+                            </div>
+                        </div>
+                        
+                        <div class="action-buttons">
+                            <button class="btn primary" id="call-btn">
+                                <span class="material-icons">call</span> Call
+                            </button>
+                            <button class="btn secondary" id="whatsapp-btn">
+                                <span class="material-icons">chat</span> WhatsApp
+                            </button>
+                            <button class="btn secondary" id="email-btn">
+                                <span class="material-icons">email</span> Email
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="lead-notes-section">
+                        <div class="section-header">
+                            <h3>Notes & History</h3>
+                            <button class="btn small" id="add-note-btn">
+                                <span class="material-icons">add</span> Add Note
+                            </button>
+                        </div>
+                        
+                        <div class="notes-timeline" id="notes-timeline">
+                            <!-- Notes will be dynamically added here -->
+                            <div class="note-item">
+                                <div class="note-header">
+                                    <span class="note-author">You</span>
+                                    <span class="note-time">2 hours ago</span>
+                                </div>
+                                <div class="note-content">
+                                    Customer showed interest in the latest model. Scheduled a test drive for tomorrow.
+                                </div>
+                            </div>
+                            <div class="note-item">
+                                <div class="note-header">
+                                    <span class="note-author">System</span>
+                                    <span class="note-time">Yesterday</span>
+                                </div>
+                                <div class="note-content">
+                                    Lead created from website contact form.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="add-note-form" id="add-note-form" style="display: none;">
+                            <textarea id="new-note" placeholder="Add a note about this lead..."></textarea>
+                            <div class="form-actions">
+                                <button type="button" class="btn secondary" id="cancel-note">Cancel</button>
+                                <button type="button" class="btn primary" id="save-note">Save Note</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Lead Modal -->
+    <div class="modal" id="add-lead-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add New Lead</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="add-lead-form">
+                    <div class="form-group">
+                        <label for="lead-name">Name <span class="required">*</span></label>
+                        <input type="text" id="lead-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="lead-email">Email</label>
+                        <input type="email" id="lead-email">
+                    </div>
+                    <div class="form-group">
+                        <label for="lead-phone">Phone <span class="required">*</span></label>
+                        <input type="tel" id="lead-phone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="lead-source">Source</label>
+                        <select id="lead-source">
+                            <option value="Website">Website</option>
+                            <option value="Facebook">Facebook</option>
+                            <option value="Google">Google</option>
+                            <option value="Referral">Referral</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="lead-status">Status</label>
+                        <select id="lead-status">
+                            <option value="new">New</option>
+                            <option value="contacted">Contacted</option>
+                            <option value="follow_up">Follow-up</option>
+                            <option value="converted">Converted</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn secondary close-modal">Cancel</button>
+                        <button type="submit" class="btn primary">Save Lead</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/leads-data.js"></script>
+    <script src="js/dashboard-utils.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/reports.js"></script>
+    <script src="js/settings.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/leads-data.js"></script>
+    <script src="js/kanban.js"></script>
+    <script src="js/leads-management.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        // Check if leadsData is defined
+        if (typeof leadsData === 'undefined') {
+            console.error('Error: leadsData is not defined. Make sure leads-data.js is loaded correctly.');
+            window.leadsData = [];
+        }
+        
+        // Single initialization function
+        function initializeApp() {
+            console.log('Initializing application...');
+            
+            // Initialize LeadManager
+            if (typeof LeadManager !== 'undefined' && typeof LeadManager.init === 'function') {
+                console.log('Initializing LeadManager...');
+                LeadManager.init();
+            } else {
+                console.error('LeadManager not available');
+            }
+            
+            // Initialize notifications if available
+            if (window.Notifications && typeof window.Notifications.init === 'function') {
+                console.log('Initializing notifications...');
+                window.Notifications.init();
+            } else {
+                console.warn('Notifications module not available');
+            }
+        }
+
+        // Initialize the app when DOM is fully loaded
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeApp);
+        } else {
+            // DOMContentLoaded has already fired
+            setTimeout(initializeApp, 0);
+        }
+    </script>
+</body>
+</html>
